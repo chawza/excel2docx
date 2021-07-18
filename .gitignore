@@ -1,0 +1,6 @@
+__pycache__
+dist
+build
+excel2docx_gui.spec
+results
+excel2docxEnv
