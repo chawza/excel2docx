@@ -53,6 +53,13 @@ def process_file():
     source_filename = source_filename.split('.')[0]   # strip of excel extentions
 
     target_filename = source_filename + '.docx'
+
+    if 'TC' == target_filename.split('_')[0]:
+        target_filename = list(target_filename)
+        target_filename[0] = 'S'
+        target_filename[1] = 'S'
+        target_filename = ''.join(target_filename)
+
     target_filepath = None
 
     doc = convert(source_file_path)
