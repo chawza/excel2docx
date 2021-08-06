@@ -70,11 +70,13 @@ def write_document(story: dict, testcases: list, uacs: List[dict]) -> Document:
     doc.add_paragraph(story['description'])
 
     for index, testcase in enumerate(testcases):
-        if len(uacs) > 0 and uacs[0]['no'] >= index + 1:
+        test_number = index + 1
+
+        if len(uacs) > 0 and uacs[0]['no'] == test_number:
             doc.add_heading(uacs[0]['uac'], 1)
-            uacs.pop()
+            uacs.pop(0)
         
-        doc.add_heading(f'Testcase{index+1}-{story["story_id"]}-{testcase["name"]}', 2)
+        doc.add_heading(f'Testcase{test_number}-{story["story_id"]}-{testcase["name"]}', 2)
         doc.add_paragraph(testcase['description'])
         doc.add_paragraph("[ADD CONTENT HERE]")
 
