@@ -35,7 +35,7 @@ def create_result_folder_if_not_exist():
     package_dir = os.path.abspath(os.path.dirname(__file__))
     file_list = os.listdir(package_dir)
     
-    if os.path.join(package_dir, 'results') not in file_list:
+    if 'results' not in file_list:
         os.makedirs('./results')
 
 def process_file():
