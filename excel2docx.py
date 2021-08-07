@@ -104,6 +104,11 @@ def convert(file_location):
     doc = write_document(story, testcases, uacs)
     return doc
 
+def rename_tc_filename(filename: str):
+    filename = list(filename)
+    filename[0:2] = 'SS'
+    return ''.join(filename)
+
 if __name__ == '__main__':
     argv = sys.argv
 

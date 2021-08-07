@@ -5,7 +5,7 @@ import tkinter as tk
 import os
 from tkinter.filedialog import askopenfile, askdirectory
 from tkinter.messagebox import showinfo, showwarning
-from excel2docx import convert
+from excel2docx import convert, rename_tc_filename
 
 DEFAULT_SOURCE_FILE_PATH = 'Source file path'
 DEFAULT_FOLDER_PATH = os.path.join(os.path.abspath(os.path.dirname(os.sys.argv[0])), 'results')
@@ -53,14 +53,10 @@ def process_file():
     source_filename = source_filename.split('.')[0]   # strip of excel extentions
 
     target_filename = source_filename + '.docx'
-
-    if 'TC' == target_filename.split('_')[0]:
-        target_filename = list(target_filename)
-        target_filename[0] = 'S'
-        target_filename[1] = 'S'
-        target_filename = ''.join(target_filename)
-
     target_filepath = None
+
+    if 'TC' == target_filename[0:2]:
+        target_filename = rename_tc_filename(target_filename)
 
     doc = convert(source_file_path)
 
