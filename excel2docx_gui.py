@@ -4,8 +4,8 @@
 import tkinter as tk
 import os
 from tkinter.filedialog import askopenfile, askdirectory
-from tkinter.messagebox import showinfo, showwarning
-from excel2docx import convert, rename_tc_filename
+from tkinter.messagebox import showerror, showinfo, showwarning
+from excel2docx import convert, rename_tc_filename, ReadWorksheetError
 
 DEFAULT_SOURCE_FILE_PATH = 'Source file path'
 DEFAULT_FOLDER_PATH = os.path.join(os.path.abspath(os.path.dirname(os.sys.argv[0])), 'results')
@@ -58,7 +58,10 @@ def process_file():
     if 'TC' == target_filename[0:2]:
         target_filename = rename_tc_filename(target_filename)
 
-    doc = convert(source_file_path)
+    try:
+        doc = convert(source_file_path)
+    except ReadWorksheetError:
+        showerror(title="Worksheet Error", message="Cannot find Testcase Worksheet")
 
     if target_directory == DEFAULT_FOLDER_PATH:
         create_result_folder_if_not_exist()

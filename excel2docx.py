@@ -8,8 +8,14 @@ from openpyxl import load_workbook
 from docx import Document
 from openpyxl.worksheet.worksheet import Worksheet
 
+TC_SHEET_NAME = 'Sprint'
+STORY_SHEET_NAME = 'story'
+UAC_SHEET_NAME = 'uac'
 TABLE_STYLE_NAME = 'Light Grid Accent 6' # https://python-docx.readthedocs.io/en/latest/user/styles-understanding.html
 FIRST_ROW_TO_SCAN = 13
+
+class ReadWorksheetError(Exception):
+    """Cannot find Testcase worksheet"""
 
 class TESTCASE_INDEX:
     ID = 0
@@ -97,9 +103,14 @@ def windows_to_unix_path(path: str):
 def convert(file_location):
     workbook = load_workbook(filename=file_location, read_only=True)
 
-    story = get_story_data(workbook['story'])
-    testcases = read_testcases(workbook['Sprint 1'])
-    uacs = get_uac(workbook['uac'])
+    try:
+        story = get_story_data(workbook[STORY_SHEET_NAME])
+        testcases = read_testcases(workbook[TC_SHEET_NAME])
+        uacs = get_uac(workbook[UAC_SHEET_NAME])
+        
+    except KeyError as err:
+        if f'Worksheet {TC_SHEET_NAME} does not exist.' in str(err):
+            raise ReadWorksheetError
 
     doc = write_document(story, testcases, uacs)
     return doc
