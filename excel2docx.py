@@ -22,6 +22,9 @@ class ReadWorksheetError(Exception):
         tc_name = f'"{self.worksheet_name}"' if worksheet_name else ''
         self.message = f"Cannot find Testcase {tc_name} Worksheet"
 
+    def __str__(self):
+        return self.message
+
 class TESTCASE_INDEX:
     ID = 0
     NAME = 1
