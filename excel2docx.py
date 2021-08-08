@@ -7,8 +7,9 @@ from typing import List
 from openpyxl import load_workbook
 from docx import Document
 from openpyxl.worksheet.worksheet import Worksheet
+from openpyxl.workbook.workbook import Workbook
 
-TC_SHEET_NAME = 'Sprint'
+TC_SHEET_NAME = 'Sprint 1'
 STORY_SHEET_NAME = 'story'
 UAC_SHEET_NAME = 'uac'
 TABLE_STYLE_NAME = 'Light Grid Accent 6' # https://python-docx.readthedocs.io/en/latest/user/styles-understanding.html
@@ -16,6 +17,10 @@ FIRST_ROW_TO_SCAN = 13
 
 class ReadWorksheetError(Exception):
     """Cannot find Testcase worksheet"""
+    def __init__(self, worksheet_name = None):
+        self.worksheet_name = worksheet_name
+        tc_name = f'"{self.worksheet_name}"' if worksheet_name else ''
+        self.message = f"Cannot find Testcase {tc_name} Worksheet"
 
 class TESTCASE_INDEX:
     ID = 0
@@ -96,21 +101,18 @@ def write_document(story: dict, testcases: list, uacs: List[dict]) -> Document:
     return doc
 
 def windows_to_unix_path(path: str):
-    if '\\' in path:
-        return path.replace('\\', '/')
-    return path
+    if '/' in path:
+        return path
+    return path.replace('\\', '/')
 
-def convert(file_location):
-    workbook = load_workbook(filename=file_location, read_only=True)
-
+def convert(workbook: Workbook):
     try:
         story = get_story_data(workbook[STORY_SHEET_NAME])
         testcases = read_testcases(workbook[TC_SHEET_NAME])
         uacs = get_uac(workbook[UAC_SHEET_NAME])
-        
     except KeyError as err:
         if f'Worksheet {TC_SHEET_NAME} does not exist.' in str(err):
-            raise ReadWorksheetError
+            raise ReadWorksheetError(TC_SHEET_NAME)
 
     doc = write_document(story, testcases, uacs)
     return doc
@@ -120,34 +122,38 @@ def rename_tc_filename(filename: str):
     filename[0:2] = 'SS'
     return ''.join(filename)
 
+def save_document(doc, result_location):
+    if 'results' not in os.listdir():
+        os.makedirs(os.join(os.getcwd(),'results'))
+    doc.save(result_location)
+
+def command_line_app(source_location, target_directory):
+    file_name = os.path.basename(source_location)
+    target_filename = file_name.split('.')[0] + '.docx'
+
+    if 'TC' == target_filename[0:2]:
+        target_filename = rename_tc_filename(target_filename)
+    
+    workbook = load_workbook(filename=source_location, read_only=True)
+    doc = convert(workbook)
+
+    target_filepath = os.path.join(target_directory, target_filename)
+    save_document(doc, target_filepath)
+
+    print(f'file saved in {target_filepath}')
+
 if __name__ == '__main__':
     argv = sys.argv
-
-    # find the excel
-    if len(argv) == 1:
-        raise Exception("require argument for file location")
-    file_location = windows_to_unix_path(argv[1])
-    file_name = file_location.split('/')[-1]    # get full file name
-
-    # determine where to export
-    # TODO: check wheter the destination is directory location or the absolue file path
-    if len(argv) >= 3:
-        result_location = windows_to_unix_path(argv[2])
-        result_file_name = result_location.split('/')[-1]
-        if len(result_file_name.split('.')) < 2: # check wheter target location have the correct postfix (.docx)
-            result_location += '.docx'
-    else:
-        result_location = './results'+ '/' + file_name.split('.')[0] + '.docx'
-    
-    # process
-    doc = convert(file_location)
-
-    # compile and save
     try:
-        doc.save(result_location)
-    except FileNotFoundError as e:
-        if e.errno == 2:
-            os.makedirs('./results')
-            doc.save(result_location) 
-        else:
-            raise e
+        source_location = argv[1]
+        target_directory = argv[2]
+    except IndexError:
+        if len(argv) < 2:
+            raise Exception("argument required: target source is not defined")
+        if len(argv) < 3:
+            target_directory = os.path.join(os.getcwd(), 'results')
+    
+    source_location = windows_to_unix_path(source_location)
+    target_directory = windows_to_unix_path(target_directory)
+
+    command_line_app(source_location, target_directory)
