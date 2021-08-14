@@ -5,16 +5,16 @@ import tkinter as tk
 import os
 from tkinter.filedialog import askopenfile, askdirectory
 from tkinter.messagebox import showerror, showinfo, showwarning
-from excel2docx import convert, rename_tc_filename, ReadWorksheetError
+from converter import convert, rename_tc_filename, ReadWorksheetError
 from openpyxl import load_workbook
 
 DEFAULT_SOURCE_FILE_PATH = 'Source file path'
-DEFAULT_FOLDER_PATH = os.path.join(os.path.abspath(os.path.dirname(os.sys.argv[0])), 'results')
+DEFAULT_FOLDER_PATH = os.path.join(os.getcwd(), 'results')
 
 def askfor_source_file():
     file = askopenfile(
-        filetypes=[('Excel files', '.xlsx .xls')],
-        initialdir='./'
+        filetypes = [('Excel files', '.xlsx .xls')],
+        initialdir = os.getcwd()
     )
     if file is None:
         return
@@ -33,11 +33,11 @@ def askfor_target_directory():
     target_label_value.config(text=folder_location)
 
 def create_result_folder_if_not_exist():
-    package_dir = os.path.abspath(os.path.dirname(__file__))
+    package_dir = os.getcwd()
     file_list = os.listdir(package_dir)
     
     if 'results' not in file_list:
-        os.makedirs('./results')
+        os.makedirs(os.path.join(os.getcwd(), 'results'))
 
 def process_file():
     global source_label_value
@@ -84,14 +84,14 @@ title_label = tk.Label(master=frame, text="Excel2Docx", font=('', 30)).grid(colu
 
 source_label = tk.Label(master=frame, text='Source\t:')
 source_label_value = tk.Label(master=frame, text=DEFAULT_SOURCE_FILE_PATH)
-browse_source_button = tk.Button(master=frame, text='browse source', command=askfor_source_file)
+browse_source_button = tk.Button(master=frame, text='Source', command=askfor_source_file)
 source_label.grid(column=0, row=1)
 source_label_value.grid(column=1, row=1)
 browse_source_button.grid(column=2, row=1)
 
 target_label = tk.Label(master=frame, text='location\t:')
 target_label_value = tk.Label(master=frame, text=DEFAULT_FOLDER_PATH)
-browse_target_button = tk.Button(master=frame, text='browse target', command=askfor_target_directory)
+browse_target_button = tk.Button(master=frame, text='Target', command=askfor_target_directory)
 target_label.grid(column=0, row=2)
 target_label_value.grid(column=1, row=2)
 browse_target_button.grid(column=2, row=2)
