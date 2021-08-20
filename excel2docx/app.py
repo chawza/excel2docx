@@ -22,8 +22,8 @@ def windows_to_unix_path(path: str):
         return path
     return path.replace('\\', '/')
 
-def convert(workbook: Workbook):
-    tc_file = TestFile(workbook)
+def convert(workbook: Workbook, uac_sheet = False):
+    tc_file = TestFile(workbook, uac_sheet=uac_sheet)
     return tc_file.get_docx()
 
 def rename_tc_filename(filename: str):
@@ -36,7 +36,7 @@ def save_document(doc, result_location):
         os.makedirs(os.join(os.getcwd(),'results'))
     doc.save(result_location)
 
-def command_line_app(source_location, target_directory):
+def command_line_app(source_location, target_directory, uac_sheet: bool = False):
     file_name = os.path.basename(source_location)
     target_filename = file_name.split('.')[0] + '.docx'
 
@@ -44,7 +44,7 @@ def command_line_app(source_location, target_directory):
         target_filename = rename_tc_filename(target_filename)
     
     workbook = load_workbook(filename=source_location, read_only=True)
-    doc = convert(workbook)
+    doc = convert(workbook, uac_sheet=uac_sheet)
 
     target_filepath = os.path.join(target_directory, target_filename)
     save_document(doc, target_filepath)
@@ -52,7 +52,14 @@ def command_line_app(source_location, target_directory):
     print(f'file saved in {target_filepath}')
 
 if __name__ == '__main__':
-    argv = sys.argv
+    argv = sys.argv.copy()
+
+    use_uac_sheet = False
+    if '-uac' in argv:
+        use_uac_sheet = True
+        argv.remove('-uac')
+
+    # TODO: recreate commandline engine
     try:
         source_location = argv[1]
         target_directory = argv[2]
@@ -60,9 +67,9 @@ if __name__ == '__main__':
         if len(argv) < 2:
             raise Exception("argument required: target source is not defined")
         if len(argv) < 3:
-            target_directory = os.path.join(os.getcwd(), 'results')
+            target_directory = os.path.join(os.getcwd(), 'results')                
     
     source_location = windows_to_unix_path(source_location)
     target_directory = windows_to_unix_path(target_directory)
 
-    command_line_app(source_location, target_directory)
+    command_line_app(source_location, target_directory, use_uac_sheet)
