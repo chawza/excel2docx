@@ -59,7 +59,46 @@ class TestFile:
 
         self.title = story['title'] or ''
         self.story_id = story['story_id'] or ''
-        self.description = story['description'] or ''        
+        self.description = story['description'] or ''
+
+    def get_uac_from_sheet(self, ws:Worksheet) -> List[dict]:
+        uacs = []
+        for row in ws:
+            uac, no = row[0].value, int(row[1].value)
+            if uac is not None and no >= 0:
+                uacs.append({
+                    'uac': uac,
+                    'no': no
+                })
+
+        self.uac = uacs
+
+    def read_testcases_v1(self, ws:Worksheet):
+        uac = self.uac.copy()
+        sliced_ws = ws[FIRST_ROW_TO_SCAN: ws.max_row-1]
+
+        # read all testcase first
+        for index, row in enumerate(sliced_ws, start=1):
+            if row[0].value is None:                # skip blank space between testcases.
+                next_row = sliced_ws[index+1]   
+                if next_row[0].value is None:       # last testcase followed with trail of blank spaces
+                    break
+                continue
+
+            if index == uac[0]['no']:
+                new_scenario = Scenario()
+                new_scenario.name = uac[0]['uac']
+                self.scenario.append(new_scenario)
+                uac.pop(0)
+
+            testcase = Testcase(
+                _id             = row[Testcase.INDEX.ID].value or '',
+                name            = row[Testcase.INDEX.NAME].value or '',
+                description     = row[Testcase.INDEX.DESC].value or '',
+                expected_result = row[Testcase.INDEX.EXPECT_RESULT].value or '',
+                actual_result   = row[Testcase.INDEX.ACTUAL_RESULT].value or ''
+            )
+            self.scenario[-1].testcases.append(testcase)        
 
     def read_testcases(self, ws: Worksheet):
         def check_row_is_blank(row):
@@ -138,7 +177,11 @@ class TestFile:
             if type(workbook) is not Workbook:
                 raise TypeError("testcase file is not Excel!")
             self._excel = workbook
-            self.read_excel_tescase()
+
+            if uac_sheet:
+                self.read_excel_tescase_v1()
+            else:
+                self.read_excel_tescase()
 
     def read_excel_tescase(self):
         try:
@@ -151,6 +194,17 @@ class TestFile:
         if 'scenario' not in dir(self):
             raise ValueError('Scenario not found!')
 
+    def read_excel_tescase_v1(self):
+        try:
+            self.get_story_data(self._excel[STORY_SHEET_NAME])
+            self.get_uac_from_sheet(self._excel[UAC_SHEET_NAME])
+            self.read_testcases_v1(self._excel[TC_SHEET_NAME])
+        except KeyError as err:
+            if f'Worksheet {TC_SHEET_NAME} does not exist.' in str(err):
+                raise ReadWorksheetError(TC_SHEET_NAME)
+
+        if 'scenario' not in dir(self):
+            raise ValueError('Scenario not found!')
+
     def get_docx(self) -> Document:
         return self.write_document()
-
