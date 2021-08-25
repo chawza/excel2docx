@@ -48,7 +48,7 @@ class TestFile:
         self._excel = workbook
         pass
 
-    def read_testfile(self):
+    def read_testfile(self, uac_sheet=True):
         workbook = self._excel
         try:
             story_data = self.get_story_data(workbook[STORY_SHEET_NAME])
@@ -57,7 +57,11 @@ class TestFile:
             self.story_id = story_data['story_id']
             
             self.testcases = self.get_testcases(workbook[TC_SHEET_NAME])
-            self.scenarios = self.get_scenarios(workbook[UAC_SHEET_NAME])
+
+            if uac_sheet:
+                self.scenarios = self.get_scenarios_from_uac_sheet(workbook[UAC_SHEET_NAME])
+            else:
+                self.scenarios = self.get_scenarios_from_tc_sheet(workbook[TC_SHEET_NAME])
         except KeyError as err:
             if f'Worksheet {TC_SHEET_NAME} does not exist.' in str(err):
                 raise ReadWorksheetError(TC_SHEET_NAME)
@@ -79,9 +83,9 @@ class TestFile:
         sliced_ws = ws[FIRST_ROW_TO_SCAN: ws.max_row-1]
 
         for index, row in enumerate(sliced_ws):
-            if row[0].value is None:                # skip blank space between testcases.
+            if row[1].value is None:                # skip blank space between testcases.
                 next_row = sliced_ws[index+1]   
-                if next_row[0].value is None:       # last testcase followed with trail of blank spaces
+                if next_row[0].value is None and next_row[1].value is None:       # last testcase followed with trail of blank spaces
                     break
                 continue
             
@@ -95,7 +99,7 @@ class TestFile:
 
         return testcases
     
-    def get_scenarios(self, ws: Worksheet) -> List[Scenario]:
+    def get_scenarios_from_uac_sheet(self, ws: Worksheet) -> List[Scenario]:
         uacs = []
         for row in ws:
             uac, no = row[0].value, int(row[1].value)
@@ -104,6 +108,25 @@ class TestFile:
                     name=uac,
                     tc_number=no
                 ))
+        return uacs
+
+    def get_scenarios_from_tc_sheet(self, ws: Worksheet) -> List[Scenario]:
+        uacs = []
+        sliced_ws = ws[FIRST_ROW_TO_SCAN: ws.max_row-1]
+
+        tc_number = 0
+        for index, row in enumerate(sliced_ws):
+            # check if its blank
+            if row[0].value is None and row[1].value is None:
+                continue
+
+            # check if its scenario
+            if row[0].value is not None and row[1].value is None:
+                uacs.append(Scenario(name=row[0].value, tc_number=tc_number))
+                continue
+
+            # check if its tc
+            tc_number += 1
         return uacs
 
     def write_document(self) -> Document:
