@@ -16,9 +16,9 @@ def windows_to_unix_path(path: str):
         return path
     return path.replace('\\', '/')
 
-def convert(workbook: Workbook):
+def convert(workbook: Workbook, uac_sheet = True):
     testfile = TestFile(workbook)
-    testfile.read_testfile()
+    testfile.read_testfile(uac_sheet=uac_sheet)
     return testfile.write_document()
 
 def rename_tc_filename(filename: str):
@@ -31,7 +31,7 @@ def save_document(doc, result_location):
         os.makedirs(os.join(os.getcwd(),'results'))
     doc.save(result_location)
 
-def command_line_app(source_location, target_directory):
+def command_line_app(source_location, target_directory, uac_sheet=True):
     file_name = os.path.basename(source_location)
     target_filename = file_name.split('.')[0] + '.docx'
 
@@ -39,7 +39,7 @@ def command_line_app(source_location, target_directory):
         target_filename = rename_tc_filename(target_filename)
     
     workbook = load_workbook(filename=source_location, read_only=True)
-    doc = convert(workbook)
+    doc = convert(workbook, uac_sheet)
 
     target_filepath = os.path.join(target_directory, target_filename)
     save_document(doc, target_filepath)
@@ -48,6 +48,12 @@ def command_line_app(source_location, target_directory):
 
 if __name__ == '__main__':
     argv = sys.argv
+
+    is_uac_sheet = True
+    if '--uac-tc' in argv:
+        is_uac_sheet = False
+        argv.remove('--uac-tc')
+
     try:
         source_location = argv[1]
         target_directory = argv[2]
@@ -60,4 +66,4 @@ if __name__ == '__main__':
     source_location = windows_to_unix_path(source_location)
     target_directory = windows_to_unix_path(target_directory)
 
-    command_line_app(source_location, target_directory)
+    command_line_app(source_location, target_directory, uac_sheet=is_uac_sheet)
