@@ -60,9 +60,14 @@ def process_file():
     if 'TC' == target_filename[0:2]:
         target_filename = rename_tc_filename(target_filename)
 
+    global is_uac_sheet
+    uac_sheet = True
+    if is_uac_sheet.get() == True:
+        uac_sheet = False
+
     workbook = load_workbook(filename=source_file_path, read_only=True)
     try:
-        doc = convert(workbook)
+        doc = convert(workbook, uac_sheet=uac_sheet)
     except ReadWorksheetError as err:
         showerror(title="Worksheet Error", message=err.message)
 
@@ -77,6 +82,7 @@ def process_file():
     showinfo(title='saved docuemnt', message='document has been converted!')
 
 app = tk.Tk()
+is_uac_sheet = tk.BooleanVar()
 
 frame = tk.Frame(master=app, width=400, height=400)
 frame.grid()
@@ -97,7 +103,9 @@ target_label.grid(column=0, row=2)
 target_label_value.grid(column=1, row=2)
 browse_target_button.grid(column=2, row=2)
 
+uac_checkbox = tk.Checkbutton(master=frame, text="scenario in test sheet", onvalue=True, offvalue=False, variable=is_uac_sheet)
+uac_checkbox.grid(columnspan=3, row=3)
 process_button = tk.Button(master=frame, text="PROCESS", command=process_file)
-process_button.grid(columnspan=3, row=3)
+process_button.grid(columnspan=3, row=4)
 
 app.mainloop()
