@@ -5,10 +5,8 @@ import tkinter as tk
 import os
 from tkinter.filedialog import askopenfile, askdirectory
 from tkinter.messagebox import showerror, showinfo, showwarning
+from converter import convert, rename_tc_filename, ReadWorksheetError
 from openpyxl import load_workbook
-
-from app import convert, rename_tc_filename
-from Story import ReadWorksheetError
 
 DEFAULT_SOURCE_FILE_PATH = 'Source file path'
 DEFAULT_FOLDER_PATH = os.path.join(os.getcwd(), 'results')
