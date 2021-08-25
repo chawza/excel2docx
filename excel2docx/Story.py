@@ -30,13 +30,16 @@ class Testcase:
 
 class Scenario:
     name: str
-    testcases: List[Testcase] = []
+    testcases: List[Testcase]
 
+    def __init__(self, name = ''):
+        self.name = name
+        self.testcases = []
 class TestFile:
     title :str
     story_id: str
     description: str
-    scenario: List[Scenario] = []
+    scenario: List[Scenario]
     uac = List[Dict]
     _excel: Workbook
     
@@ -46,6 +49,18 @@ class TestFile:
         DESC = 3
         EXPECT_RESULT = 5
         ACTUAL_RESULT = 6
+
+    def __init__(self, workbook: Workbook = None, uac_sheet = False):
+        self.scenario = []
+        if workbook is not None:
+            if type(workbook) is not Workbook:
+                raise TypeError("testcase file is not Excel!")
+            self._excel = workbook
+
+            if uac_sheet:
+                self.read_excel_tescase_v1()
+            else:
+                self.read_excel_tescase()
 
     def get_story_data(self, ws: Worksheet) -> None:
         story = {
@@ -72,23 +87,32 @@ class TestFile:
                 })
 
         self.uac = uacs
+    
+    def get_last_scenario(self):
+        return self.scenario[-1]
 
     def read_testcases_v1(self, ws:Worksheet):
         uac = self.uac.copy()
         sliced_ws = ws[FIRST_ROW_TO_SCAN: ws.max_row-1]
-
+        
         # read all testcase first
-        for index, row in enumerate(sliced_ws, start=1):
+        self.scenario = []
+        self.scenario.append(Scenario(name=uac[0]['uac']))
+        uac.pop(0)
+
+        testnumber = 0
+        for index, row in enumerate(sliced_ws):
             if row[0].value is None:                # skip blank space between testcases.
                 next_row = sliced_ws[index+1]   
                 if next_row[0].value is None:       # last testcase followed with trail of blank spaces
                     break
                 continue
-
-            if index == uac[0]['no']:
-                new_scenario = Scenario()
-                new_scenario.name = uac[0]['uac']
-                self.scenario.append(new_scenario)
+            
+            testnumber += 1
+            print(testnumber)
+            if len(uac) > 0 and testnumber == uac[0]['no']:
+                print('[APPENDING]', uac[0]['no'])
+                self.scenario.append(Scenario(name=uac[0]['uac']))
                 uac.pop(0)
 
             testcase = Testcase(
@@ -98,7 +122,7 @@ class TestFile:
                 expected_result = row[Testcase.INDEX.EXPECT_RESULT].value or '',
                 actual_result   = row[Testcase.INDEX.ACTUAL_RESULT].value or ''
             )
-            self.scenario[-1].testcases.append(testcase)        
+            self.scenario[-1].testcases.append(testcase)
 
     def read_testcases(self, ws: Worksheet):
         def check_row_is_blank(row):
@@ -171,17 +195,6 @@ class TestFile:
                 table.cell(1,1).text = testcase.actual_result or ""
         
         return doc
-
-    def __init__(self, workbook: Workbook = None, uac_sheet = False):
-        if workbook is not None:
-            if type(workbook) is not Workbook:
-                raise TypeError("testcase file is not Excel!")
-            self._excel = workbook
-
-            if uac_sheet:
-                self.read_excel_tescase_v1()
-            else:
-                self.read_excel_tescase()
 
     def read_excel_tescase(self):
         try:
