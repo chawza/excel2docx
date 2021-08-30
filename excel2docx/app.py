@@ -2,11 +2,8 @@
 
 import sys
 import os
-from typing import List
 
 from openpyxl import load_workbook
-from docx import Document
-from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.workbook.workbook import Workbook
 
 from story import TestFile
