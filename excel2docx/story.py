@@ -7,7 +7,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from docx import Document
 
-from exceptions import ReadWorksheetError
+from .exceptions import ReadWorksheetError
 
 TC_SHEET_NAME = 'Sprint 1'
 STORY_SHEET_NAME = 'story'
@@ -15,7 +15,7 @@ UAC_SHEET_NAME = 'uac'
 TABLE_STYLE_NAME = 'Grid Table 4 Accent 6' # this is custom style
 FIRST_ROW_TO_SCAN = 13
 
-template_file_location = os.path.join(os.getcwd(), 'excel2docx' ,'files', 'doc_template.docx')
+template_file_location = os.path.join(os.path.dirname(__file__), 'files', 'doc_template.docx')
 
 class TESTCASE_INDEX:
     ID = 0

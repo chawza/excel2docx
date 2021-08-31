@@ -6,7 +6,7 @@ import os
 from openpyxl import load_workbook
 from openpyxl.workbook.workbook import Workbook
 
-from story import TestFile
+from .story import TestFile
 
 def windows_to_unix_path(path: str):
     if '/' in path:
