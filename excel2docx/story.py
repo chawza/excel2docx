@@ -1,5 +1,6 @@
 from typing import List, Dict
 from dataclasses import dataclass
+import os
 
 from openpyxl.workbook.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
@@ -11,8 +12,10 @@ from exceptions import ReadWorksheetError
 TC_SHEET_NAME = 'Sprint 1'
 STORY_SHEET_NAME = 'story'
 UAC_SHEET_NAME = 'uac'
-TABLE_STYLE_NAME = 'Light Grid Accent 6' # https://python-docx.readthedocs.io/en/latest/user/styles-understanding.html
+TABLE_STYLE_NAME = 'Grid Table 4 Accent 6' # this is custom style
 FIRST_ROW_TO_SCAN = 13
+
+template_file_location = os.path.join(os.getcwd(), 'excel2docx' ,'files', 'doc_template.docx')
 
 class TESTCASE_INDEX:
     ID = 0
@@ -130,8 +133,12 @@ class TestFile:
         return uacs
 
     def write_document(self) -> Document:
-        doc = Document()
+        f = open(template_file_location, 'rb')
+        doc = Document(f)
+        f.close()
 
+        doc._body.clear_content() # https://stackoverflow.com/questions/39479005/python-docx-deleting-first-paragraph
+        
         doc.add_heading(self.title, 0)
         story_id_paragraph = doc.add_paragraph('')
         story_id_paragraph.add_run(self.story_id).bold = True
