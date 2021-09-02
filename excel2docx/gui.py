@@ -5,8 +5,8 @@ import tkinter as tk
 import os
 from tkinter.filedialog import askopenfile, askdirectory
 from tkinter.messagebox import showerror, showinfo, showwarning
-from app import convert, rename_tc_filename
-from exceptions import ReadWorksheetError
+from .app import convert, rename_tc_filename
+from .exceptions import ReadWorksheetError
 from openpyxl import load_workbook
 
 DEFAULT_SOURCE_FILE_PATH = 'Source file path'
@@ -107,5 +107,3 @@ uac_checkbox = tk.Checkbutton(master=frame, text="scenario in test sheet", onval
 uac_checkbox.grid(columnspan=3, row=3)
 process_button = tk.Button(master=frame, text="PROCESS", command=process_file)
 process_button.grid(columnspan=3, row=4)
-
-app.mainloop()
