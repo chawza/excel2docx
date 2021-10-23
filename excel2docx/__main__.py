@@ -9,7 +9,7 @@ from .story import SCENARIO_MODE
 
 def print_help():
     print('--help to print help')
-    print('usage:\t<source> [<destination>] <mode>')
+    print('usage:\t<source> [<destination> <mode>]')
     print('')
     print('<source>\texcel file full path')
     print('<destination>\t(optional) output .docx full path location')
@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     scenario_read_mode = '--uac-comment'
     if '--uac-sheet' in argv:
-        scenario_read_mode = SCENARIO_MODE.UAC_SHEET
+        scenario_read_mode = SCENARIO_MODE.UAC_COMMENT
         argv.remove('--uac-sheet')
     elif '--uac-comment' in argv:
         scenario_read_mode = SCENARIO_MODE.UAC_COMMENT
