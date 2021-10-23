@@ -5,17 +5,39 @@ import os
 
 from .gui import app as GUIApp
 from .app import windows_to_unix_path, command_line_app
+from .story import SCENARIO_MODE
+
+def print_help():
+    print('--help to print help')
+    print('usage:\t<source> [<destination>] <mode>')
+    print('')
+    print('<source>\texcel file full path')
+    print('<destination>\t(optional) output .docx full path location')
+    print('<mode>\t\t(optional) read mode for reading scenario title')
+    print('\t--uac-comment (default)')
+    print('\t--uac-sheet')
+    print('\t--uac-tc')
 
 if __name__ == '__main__':
     argv = sys.argv
+
+    if '--help' in argv or 'help' in argv or len(argv) == 1:
+        print_help()
+        exit()
     
     if 'gui' in argv:
         GUIApp.mainloop()
         exit()
 
-    is_uac_sheet = True
-    if '--uac-tc' in argv:
-        is_uac_sheet = False
+    scenario_read_mode = '--uac-comment'
+    if '--uac-sheet' in argv:
+        scenario_read_mode = SCENARIO_MODE.UAC_SHEET
+        argv.remove('--uac-sheet')
+    elif '--uac-comment' in argv:
+        scenario_read_mode = SCENARIO_MODE.UAC_COMMENT
+        argv.remove('--uac-comment')
+    elif '--uac-tc' in argv:
+        scenario_read_mode = SCENARIO_MODE.UAC_TC
         argv.remove('--uac-tc')
 
     try:
@@ -30,4 +52,4 @@ if __name__ == '__main__':
     source_location = windows_to_unix_path(source_location)
     target_directory = windows_to_unix_path(target_directory)
 
-    command_line_app(source_location, target_directory, uac_sheet=is_uac_sheet)
+    command_line_app(source_location, target_directory, scenario_read_mode=scenario_read_mode)

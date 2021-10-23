@@ -37,6 +37,11 @@ class Scenario:
     name: str
     tc_number: int
 
+class SCENARIO_MODE:
+    UAC_SHEET = 'UAC_SHEET'
+    UAC_TC = 'UAC_TC'
+    UAC_COMMENT = 'UAC_COMMENT'
+
 class TestFile:
     title :str
     story_id: str
@@ -51,20 +56,23 @@ class TestFile:
         self._excel = workbook
         pass
 
-    def read_testfile(self, uac_sheet=True):
+    def read_testfile(self, scenario_read_mode = SCENARIO_MODE.UAC_SHEET):
         workbook = self._excel
         try:
             story_data = self.get_story_data(workbook[STORY_SHEET_NAME])
             self.title = story_data['title']
             self.description = story_data['description']
             self.story_id = story_data['story_id']
-            
+
             self.testcases = self.get_testcases(workbook[TC_SHEET_NAME])
 
-            if uac_sheet:
+            if scenario_read_mode == SCENARIO_MODE.UAC_SHEET:
                 self.scenarios = self.get_scenarios_from_uac_sheet(workbook[UAC_SHEET_NAME])
-            else:
+            elif scenario_read_mode == SCENARIO_MODE.UAC_COMMENT:
+                self.scenarios = self.get_scenarios_from_tc_comment(workbook[TC_SHEET_NAME])
+            elif scenario_read_mode == SCENARIO_MODE.UAC_TC:
                 self.scenarios = self.get_scenarios_from_tc_sheet(workbook[TC_SHEET_NAME])
+
         except KeyError as err:
             if f'Worksheet {TC_SHEET_NAME} does not exist.' in str(err):
                 raise ReadWorksheetError(TC_SHEET_NAME)
