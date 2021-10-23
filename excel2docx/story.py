@@ -132,6 +132,25 @@ class TestFile:
             tc_number += 1
         return uacs
 
+    def get_scenarios_from_tc_comment(self, ws: Worksheet) -> List[Scenario]:
+        uacs = []
+        sliced_ws = ws[FIRST_ROW_TO_SCAN: ws.max_row-1]
+        tc_number = 0
+
+        for index, row in enumerate(sliced_ws):
+            # check if its blank
+            if row[0].value is None:
+                continue
+
+            tc_number += 1
+            # check if it has scenario
+            if row[0].comment is not None:
+                comment = row[0].comment
+                text = comment.text.split('Comment:')[1].strip()                
+                uacs.append(Scenario(name=text, tc_number=tc_number))
+
+        return uacs
+
     def write_document(self) -> Document:
         f = open(template_file_location, 'rb')
         doc = Document(f)
