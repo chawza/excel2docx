@@ -7,6 +7,7 @@ from tkinter.filedialog import askopenfile, askdirectory
 from tkinter.messagebox import showerror, showinfo, showwarning
 from .app import convert, rename_tc_filename
 from .exceptions import ReadWorksheetError
+from .story import SCENARIO_MODE
 from openpyxl import load_workbook
 
 DEFAULT_SOURCE_FILE_PATH = 'Source file path'
@@ -61,13 +62,13 @@ def process_file():
         target_filename = rename_tc_filename(target_filename)
 
     global is_uac_sheet
-    uac_sheet = True
+    uac_mode = SCENARIO_MODE.UAC_SHEET
     if is_uac_sheet.get() == True:
-        uac_sheet = False
+        uac_mode = SCENARIO_MODE.UAC_COMMENT
 
-    workbook = load_workbook(filename=source_file_path, read_only=True)
+    workbook = load_workbook(filename=source_file_path, read_only=False)
     try:
-        doc = convert(workbook, uac_sheet=uac_sheet)
+        doc = convert(workbook, scenario_read_mode=uac_mode)
     except ReadWorksheetError as err:
         showerror(title="Worksheet Error", message=err.message)
 
@@ -103,7 +104,7 @@ target_label.grid(column=0, row=2)
 target_label_value.grid(column=1, row=2)
 browse_target_button.grid(column=2, row=2)
 
-uac_checkbox = tk.Checkbutton(master=frame, text="scenario in test sheet", onvalue=True, offvalue=False, variable=is_uac_sheet)
-uac_checkbox.grid(columnspan=3, row=3)
+uac_mode = tk.Checkbutton(master=frame, text="scenario in comment", onvalue=True, offvalue=False, variable=is_uac_sheet)
+uac_mode.grid(columnspan=3, row=3)
 process_button = tk.Button(master=frame, text="PROCESS", command=process_file)
 process_button.grid(columnspan=3, row=4)
