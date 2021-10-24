@@ -16,8 +16,10 @@ my helper scripts to convert manual testcase to document while working at BTPN
 
 # How to run
 ## The Gui way
-open the app using graphical user interface for easier experience thanks to Tkinter module
 ![Excel2docx in GUI version](/docs/imgs/gui-preview.png)
+
+open the app using graphical user interface for easier experience thanks to Tkinter module
+
 1. open your terminal
 2. run the package as python module
    ```
@@ -27,18 +29,20 @@ open the app using graphical user interface for easier experience thanks to Tkin
 
    > Make sure the python have [Tkinter](https://docs.python.org/3/library/tkinter.html) module installed
 
-   > You can create cmd/bash shortcut to run this quickly
+   > Tips: you can create cmd/bash shortcut to run this quickly
 
 ## The CLI way
-quick way for converting files or including in your scripts
-1. open terminal
-2. run the package as python module
-   ```
-    python -m excel2docx [source file] [target directory] [--uac-tc]
-   ```
-   > source file: full path of your excel file in your machine
-   >
-   > target directory: (<b>optional</b>) where do you want your docx file saved in your machine
-   >
-   > --uac-tc: if the scenario title is in the testcase sheet (status: about to drop)
-   
+```
+   python -m excel2docx <source file> <target directory> <mode>
+```
+### <i>source file</i>
+full path of your excel file in your machine
+
+### <i>target directory</i>
+(optional) where do you want your docx file saved in your machine
+
+### <i>mode</i>
+(optional) how to read the scenario title
+> --uac-comment (default) : define scenario title as comment
+
+> --uac-sheet : define scenario title in "uac" sheet
