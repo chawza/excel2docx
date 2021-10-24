@@ -16,8 +16,6 @@ my helper scripts to convert manual testcase to document while working at BTPN
 
 # How to run
 ## The Gui way
-![Excel2docx in GUI version](/docs/imgs/gui-preview.png)
-
 open the app using graphical user interface for easier experience thanks to Tkinter module
 
 1. open your terminal
@@ -26,6 +24,8 @@ open the app using graphical user interface for easier experience thanks to Tkin
    python -m excel2docx gui
    ```
 3. the gui should show
+   
+   ![Excel2docx in GUI version](/docs/imgs/gui-preview.png)
 
    > Make sure the python have [Tkinter](https://docs.python.org/3/library/tkinter.html) module installed
 
@@ -33,7 +33,7 @@ open the app using graphical user interface for easier experience thanks to Tkin
 
 ## The CLI way
 ```
-   python -m excel2docx <source file> <target directory> <mode>
+   python -m excel2docx <source file> [target directory> <mode>]
 ```
 ### <i>source file</i>
 full path of your excel file in your machine
