@@ -5,3 +5,4 @@ excel2docx_gui.spec
 results
 env
 start.bat
+tests
