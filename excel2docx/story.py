@@ -154,7 +154,10 @@ class TestFile:
             # check if it has scenario
             if row[0].comment is not None:
                 comment = row[0].comment
-                text = comment.text.split('Comment:')[1].strip()                
+                text = comment.text
+                if text.__contains__('Comment:'):
+                    text = comment.text.split('Comment:')[1]
+                text = text.strip()
                 uacs.append(Scenario(name=text, tc_number=tc_number))
 
         return uacs
